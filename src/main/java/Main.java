@@ -1,11 +1,12 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
@@ -42,43 +43,45 @@ public class Main {
         System.out.println(jsonXml);
 
         //Задание №3 json-->java
-        //String json = readString("new_data.json");
+        String json3 = readString("data.json");
+        List<Employee> listJ = jsonToList(json3);
+        if (listJ.size() > 0) {
+            for (Employee employee : listJ) {
+                System.out.println(employee);
+            }
+        } else {
+            System.out.println("No objects in list!");
+        }
     }
 
-   /* public static String readString(String fName){
-        Gson gson = new Gson();
-        JSONParser parser = new JSONParser();
-        try {
-            Object obj = parser.parse(new FileReader("data.json"));
-            JSONObject jsonObject = (JSONObject) obj;
-            System.out.println(jsonObject);
-        } catch (IOException | ParseException e) {
+    public static String readString(String json) {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader bf = new BufferedReader(new FileReader(json))) {
+            String s;
+            while ((s = bf.readLine()) != null) {
+                sb.append(s);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        *//*File jsonFile = new File(fName);
+        return sb.toString();
+    }
+
+    public static List<Employee> jsonToList(String json) {
+        List<Employee> list = new ArrayList<>();
+        Gson gson = new GsonBuilder()
+                .create();
         JSONParser parser = new JSONParser();
-        try
-        {
-            BufferedReader br = new BufferedReader(new FileReader(jsonFile));
-            // convert the json string back to object
-            Employee obj = gson.fromJson(br, Employee.class);
-            System.out.println(obj);
-        } catch (IOException e)
-        {
+        try {
+            JSONArray array = (JSONArray) parser.parse(json);
+            for (Object obj : array) {
+                list.add(gson.fromJson(String.valueOf(obj), Employee.class));
+            }
+        } catch (JsonSyntaxException | ParseException e) {
             e.printStackTrace();
-        }*//*
-
-        return strJson;
-    }*/
-
-    /*public static List<Employee> jsonToList(String json) {
-        Type listType = new TypeToken<List<Employee>>() {
-        }.getType();
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-        return gson.toJson(list, listType);
-    }*/
-
+        }
+        return list;
+    }
 
     public static List<Employee> parseXML(String fName) throws IOException, SAXException, ParserConfigurationException {
         List<Employee> listXML = new ArrayList<>();
